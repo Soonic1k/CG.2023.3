@@ -15,12 +15,15 @@ protected:
   void onResize(glm::ivec2 const &size) override;
   void onDestroy() override;
 
+
 private:
   std::default_random_engine m_randomEngine;
 
   glm::ivec2 m_viewportSize{};
+  glm::vec3 m_additionalModelPosition;
 
   Model m_model;
+  Model m_additionalModel;
 
   struct Star {
     glm::vec3 m_position{};
@@ -33,9 +36,11 @@ private:
 
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
-  float m_FOV{30.0f};
+
+  float m_FOV{75.0f};
 
   GLuint m_program{};
+
 
   void randomizeStar(Star &star);
 };

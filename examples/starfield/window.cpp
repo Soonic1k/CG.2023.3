@@ -15,8 +15,15 @@ void Window::onCreate() {
                                  {.source = assetsPath + "depth.frag",
                                   .stage = abcg::ShaderStage::Fragment}});
 
-  m_model.loadObj(assetsPath + "box.obj");
+  m_model.loadObj(assetsPath + "box.obj"); //Change Stars image loaded on screen
   m_model.setupVAO(m_program);
+
+
+  //STARSHIP MODEL
+  m_additionalModel.loadObj(assetsPath + "starship.obj"); // Substitua "seu_objeto.obj" pelo nome do seu arquivo de objeto
+  m_additionalModel.setupVAO(m_program);
+  m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
 
   // Camera at (0,0,0) and looking towards the negative z
   glm::vec3 const eye{0.0f, 0.0f, 0.0f};
@@ -28,7 +35,9 @@ void Window::onCreate() {
   for (auto &star : m_stars) {
     randomizeStar(star);
   }
+
 }
+
 
 void Window::randomizeStar(Star &star) {
   // Random position: x and y in [-20, 20), z in [-100, 0)
@@ -59,6 +68,8 @@ void Window::onUpdate() {
       star.m_position.z = -100.0f; // Back to -100
     }
   }
+
+    
 }
 
 void Window::onPaint() {
@@ -68,6 +79,8 @@ void Window::onPaint() {
 
   abcg::glUseProgram(m_program);
 
+
+
   // Get location of uniform variables
   auto const viewMatrixLoc{abcg::glGetUniformLocation(m_program, "viewMatrix")};
   auto const projMatrixLoc{abcg::glGetUniformLocation(m_program, "projMatrix")};
@@ -75,10 +88,18 @@ void Window::onPaint() {
       abcg::glGetUniformLocation(m_program, "modelMatrix")};
   auto const colorLoc{abcg::glGetUniformLocation(m_program, "color")};
 
+
   // Set uniform variables that have the same value for every model
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
   abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f); // White
+
+  //STARSHIP MODEL RENDER
+  glm::mat4 additionalModelMatrix{1.0f};
+  additionalModelMatrix = glm::translate(additionalModelMatrix, m_additionalModelPosition);
+  additionalModelMatrix = glm::scale(additionalModelMatrix, glm::vec3(0.014f, 0.014f, 0.014f));
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &additionalModelMatrix[0][0]);
+  m_additionalModel.render();
 
   // Render each star
   for (auto &star : m_stars) {
@@ -92,6 +113,7 @@ void Window::onPaint() {
     abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
 
     m_model.render();
+
   }
 
   abcg::glUseProgram(0);
@@ -131,7 +153,7 @@ void Window::onPaintUI() {
         m_projMatrix =
             glm::perspective(glm::radians(m_FOV), aspect, 0.01f, 100.0f);
 
-        ImGui::SliderFloat("FOV", &m_FOV, 5.0f, 179.0f, "%.0f degrees");
+        ImGui::SliderFloat("Vel.", &m_FOV, 55.0f, 160.0f, "%.0f Light Years");
       } else {
         m_projMatrix = glm::ortho(-20.0f * aspect, 20.0f * aspect, -20.0f,
                                   20.0f, 0.01f, 100.0f);
