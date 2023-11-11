@@ -1,2 +1,2 @@
-add_subdirectory(starfield)
-add_subdirectory(helloworld)
+add_subdirectory(starship)
+#add_subdirectory(helloworld)

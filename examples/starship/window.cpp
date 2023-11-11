@@ -12,10 +12,10 @@ void Window::onCreate() {
   m_program =
       abcg::createOpenGLProgram({{.source = assetsPath + "depth.vert",
                                   .stage = abcg::ShaderStage::Vertex},
-                                 {.source = assetsPath + "depth.frag",
+                                  {.source = assetsPath + "depth.frag",
                                   .stage = abcg::ShaderStage::Fragment}});
 
-  m_model.loadObj(assetsPath + "box.obj"); //Change Stars image loaded on screen
+  m_model.loadObj(assetsPath + "asteroid.obj"); //Change Stars image loaded on screen
   m_model.setupVAO(m_program);
 
 
@@ -26,8 +26,8 @@ void Window::onCreate() {
 
 
   // Camera at (0,0,0) and looking towards the negative z
-  glm::vec3 const eye{0.0f, 0.0f, 0.0f};
-  glm::vec3 const at{0.0f, 0.0f, -1.0f};
+  glm::vec3 const eye{0.0f, 0.005f, 0.0f};
+  glm::vec3 const at{0.0f, -0.1f, -1.0f};
   glm::vec3 const up{0.0f, 1.0f, 0.0f};
   m_viewMatrix = glm::lookAt(eye, at, up);
 
