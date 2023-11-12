@@ -9,14 +9,77 @@
 void Window::onEvent(SDL_Event const &event) {
   // Keyboard events
   if (event.type == SDL_KEYDOWN) {
-    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
-      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Up));
-    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
-      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Down));
-    if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
+    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w){
+      if(m_angle_calculated > 0.1f || rotation_x > 0.1f){
+        m_angle_calculated -= 0.4f;
+        rotation_x -= 0.04f;
+        rotation_y -= 0.04f;
+        m_angle_calculated = glm::clamp(m_angle_calculated, 0.1f, 20.0f);
+        rotation_x = glm::clamp(rotation_x, 0.1f, 3.0f);
+        rotation_y = glm::clamp(rotation_y, 0.1f, 3.0f);
+        m_angle_ship = glm::wrapAngle(glm::radians(m_angle_calculated));
+        starship_rotation = glm::vec3(rotation_x, rotation_y, rotation_z);
+        m_gameData.m_input.set(gsl::narrow<size_t>(Input::Up));
+      }
+
+      if(m_angle_calculated < 0.1f || rotation_x < 0.1f) {
+        m_angle_calculated += 0.4f;
+        rotation_x += 0.04f;
+        rotation_y -= 0.04f;
+        m_angle_calculated = glm::clamp(m_angle_calculated, -20.0f, 0.0f);
+        rotation_x = glm::clamp(rotation_x, -3.0f, 0.1f);
+        rotation_y = glm::clamp(rotation_y, 0.1f, 3.0f);
+        m_angle_ship = glm::wrapAngle(glm::radians(m_angle_calculated));
+        starship_rotation = glm::vec3(rotation_x, rotation_y, rotation_z);
+        m_gameData.m_input.set(gsl::narrow<size_t>(Input::Up));
+      }
+    }
+    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s){
+      if(m_angle_calculated > 0.1f || rotation_x > 0.1f){
+        m_angle_calculated -= 0.4f;
+        rotation_x -= 0.04f;
+        rotation_y -= 0.04f;
+        m_angle_calculated = glm::clamp(m_angle_calculated, 0.1f, 20.0f);
+        rotation_x = glm::clamp(rotation_x, 0.1f, 3.0f);
+        rotation_y = glm::clamp(rotation_y, 0.1f, 3.0f);
+        m_angle_ship = glm::wrapAngle(glm::radians(m_angle_calculated));
+        starship_rotation = glm::vec3(rotation_x, rotation_y, rotation_z);
+        m_gameData.m_input.set(gsl::narrow<size_t>(Input::Down));
+      }
+      if(m_angle_calculated < 0.1f || rotation_x < 0.1f) {
+        m_angle_calculated += 0.4f;
+        rotation_x += 0.04f;
+        rotation_y -= 0.04f;
+        m_angle_calculated = glm::clamp(m_angle_calculated, -20.0f, 0.1f);
+        rotation_x = glm::clamp(rotation_x, -3.0f, 0.1f);
+        rotation_y = glm::clamp(rotation_y, 0.1f, 3.0f);
+        m_angle_ship = glm::wrapAngle(glm::radians(m_angle_calculated));
+        starship_rotation = glm::vec3(rotation_x, rotation_y, rotation_z);
+        m_gameData.m_input.set(gsl::narrow<size_t>(Input::Down));
+      }
+    }
+    if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a){
+      m_angle_calculated += 0.4f;
+      m_angle_calculated = glm::clamp(m_angle_calculated, -20.0f, 20.0f);
+      m_angle_ship = glm::wrapAngle(glm::radians(m_angle_calculated));
+      rotation_x += 0.04f;
+      rotation_y += 0.04f;
+      rotation_x = glm::clamp(rotation_x, -3.0f, 3.0f);
+      rotation_y = glm::clamp(rotation_y, 0.1f, 3.0f);
+      starship_rotation = glm::vec3(rotation_x, rotation_y, rotation_z);
       m_gameData.m_input.set(gsl::narrow<size_t>(Input::Left));
-    if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
+    }
+    if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d){
+      m_angle_calculated -= 0.4f;
+      m_angle_calculated = glm::clamp(m_angle_calculated, -20.0f, 20.0f);
+      m_angle_ship = glm::wrapAngle(glm::radians(m_angle_calculated));
+      rotation_x -= 0.04f;
+      rotation_y += 0.04f;
+      rotation_x = glm::clamp(rotation_x, -3.0f, 3.0f);
+      rotation_y = glm::clamp(rotation_y, 0.1f, 3.0f);
+      starship_rotation = glm::vec3(rotation_x, rotation_y, rotation_z);
       m_gameData.m_input.set(gsl::narrow<size_t>(Input::Right));
+    }
   }
   if (event.type == SDL_KEYUP) {
     if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
@@ -78,6 +141,10 @@ void Window::onCreate() {
   glm::vec3 const up{0.0f, 1.0f, 0.0f};
   m_viewMatrix = glm::lookAt(eye, at, up);
 
+  //rotação inicial da nave
+  m_angle_ship = glm::wrapAngle(glm::radians(0.0f));
+  starship_rotation = glm::vec3(1.0f, 1.0f, 1.0f);
+
   // Setup stars
   for (auto &star : m_stars) {
     randomizeStar(star);
@@ -100,6 +167,8 @@ void Window::randomizeStar(Star &star) {
 void Window::onUpdate() {
 
   m_modelMatrix = m_trackBall.getRotation();
+
+  starship.m_rotationAxis = starship_rotation;
 
   m_viewMatrix =
       glm::lookAt(glm::vec3(0.0f, 0.005f + m_zoom, 0.035f + m_zoom),
@@ -137,6 +206,10 @@ void Window::onUpdate() {
       randomizeStar(star);
       star.m_position.z = -100.0f; // Back to -100
     }
+    if (star.m_position.z < -100.0f) {
+      randomizeStar(star);
+      star.m_position.z = 0.1f; // Back to -100
+    }
 
     if (star.m_position.x > 20.0f) {
       randomizeStar(star);
@@ -173,12 +246,13 @@ void Window::onPaint() {
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
-  abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f); // White
+  abcg::glUniform4f(colorLoc, 0.7f, 0.7f, 0.7f, 0.7f); // White
 
   //STARSHIP MODEL RENDER
   glm::mat4 additionalModelMatrix{1.0f};
   additionalModelMatrix = glm::translate(additionalModelMatrix, m_additionalModelPosition);
   additionalModelMatrix = glm::scale(additionalModelMatrix, glm::vec3(0.014f, 0.014f, 0.014f));
+  additionalModelMatrix = glm::rotate(additionalModelMatrix, m_angle_ship, starship.m_rotationAxis);
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &additionalModelMatrix[0][0]);
   m_additionalModel.render();
 
