@@ -98,11 +98,29 @@ void Window::onUpdate() {
       star.m_position.z -= deltaTime * 30.0f;
     }
 
+    if (m_gameData.m_input[static_cast<size_t>(Input::Left)]) {
+    star.m_position.x += deltaTime * 30.0f;
+    }
+
+    if (m_gameData.m_input[static_cast<size_t>(Input::Right)]) {
+      star.m_position.x -= deltaTime * 30.0f;
+    }
+
     // If this star is behind the camera, select a new random position &
     // orientation and move it back to -100
     if (star.m_position.z > 0.1f) {
       randomizeStar(star);
       star.m_position.z = -100.0f; // Back to -100
+    }
+
+    if (star.m_position.x > 100.0f) {
+      randomizeStar(star);
+      star.m_position.x = -100.0f; // Back to -100
+    }
+
+    if (star.m_position.x < -100.0f) {
+      randomizeStar(star);
+      star.m_position.x = 100.0f; // Back to -100
     }
   }
 
