@@ -96,17 +96,6 @@ void Window::onEvent(SDL_Event const &event) {
   glm::ivec2 mousePosition;
   SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
 
-  if (event.type == SDL_MOUSEMOTION) {
-    m_trackBall.mouseMove(mousePosition);
-  }
-  if (event.type == SDL_MOUSEBUTTONDOWN &&
-      event.button.button == SDL_BUTTON_LEFT) {
-    m_trackBall.mousePress(mousePosition);
-  }
-  if (event.type == SDL_MOUSEBUTTONUP &&
-      event.button.button == SDL_BUTTON_LEFT) {
-    m_trackBall.mouseRelease(mousePosition);
-  }
   if (event.type == SDL_MOUSEWHEEL) {
     m_zoom += (event.wheel.y > 0 ? -0.001f : 0.001f) * 2.0f / 5.0f;
     m_zoom = glm::clamp(m_zoom, 0.00f, 0.02f);
@@ -165,8 +154,6 @@ void Window::randomizeStar(Star &star) {
 }
 
 void Window::onUpdate() {
-
-  m_modelMatrix = m_trackBall.getRotation();
 
   starship.m_rotationAxis = starship_rotation;
 
@@ -322,7 +309,6 @@ void Window::onPaintUI() {
 
 void Window::onResize(glm::ivec2 const &size) { 
   m_viewportSize = size; 
-  m_trackBall.resizeViewport(size);
 }
 
 void Window::onDestroy() {

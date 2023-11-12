@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib stone.mtl
+mtllib asteroid.mtl
 o Cube
 v 0.233202 -0.387019 -0.280296
 v 0.191442 -0.365058 0.277358
