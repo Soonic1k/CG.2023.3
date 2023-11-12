@@ -5,7 +5,7 @@
 
 
 
-// ------
+// Mouse and Keyboard Events
 void Window::onEvent(SDL_Event const &event) {
   // Keyboard events
   if (event.type == SDL_KEYDOWN) {
@@ -28,9 +28,27 @@ void Window::onEvent(SDL_Event const &event) {
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
       m_gameData.m_input.reset(gsl::narrow<size_t>(Input::Right));
   }
-}
 
-// ----------
+  //Mouse events
+  glm::ivec2 mousePosition;
+  SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
+
+  if (event.type == SDL_MOUSEMOTION) {
+    m_trackBall.mouseMove(mousePosition);
+  }
+  if (event.type == SDL_MOUSEBUTTONDOWN &&
+      event.button.button == SDL_BUTTON_LEFT) {
+    m_trackBall.mousePress(mousePosition);
+  }
+  if (event.type == SDL_MOUSEBUTTONUP &&
+      event.button.button == SDL_BUTTON_LEFT) {
+    m_trackBall.mouseRelease(mousePosition);
+  }
+  if (event.type == SDL_MOUSEWHEEL) {
+    m_zoom += (event.wheel.y > 0 ? -0.001f : 0.001f) * 2.0f / 5.0f;
+    m_zoom = glm::clamp(m_zoom, 0.00f, 0.02f);
+  }
+}
 
 void Window::onCreate() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
@@ -49,13 +67,13 @@ void Window::onCreate() {
 
 
   //STARSHIP MODEL
-  m_additionalModel.loadObj(assetsPath + "starship.obj"); // Substitua "seu_objeto.obj" pelo nome do seu arquivo de objeto
+  m_additionalModel.loadObj(assetsPath + "starship.obj");
   m_additionalModel.setupVAO(m_program);
   m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
 
   // Camera at (0,0,0) and looking towards the negative z
-  glm::vec3 const eye{0.0f, 0.005f, 0.0f};
+  glm::vec3 const eye{0.0f, 0.035f, 0.01f};
   glm::vec3 const at{0.0f, -0.1f, -1.0f};
   glm::vec3 const up{0.0f, 1.0f, 0.0f};
   m_viewMatrix = glm::lookAt(eye, at, up);
@@ -66,7 +84,6 @@ void Window::onCreate() {
   }
 
 }
-
 
 void Window::randomizeStar(Star &star) {
   // Random position: x and y in [-20, 20), z in [-100, 0)
@@ -81,6 +98,14 @@ void Window::randomizeStar(Star &star) {
 }
 
 void Window::onUpdate() {
+
+  m_modelMatrix = m_trackBall.getRotation();
+
+  m_viewMatrix =
+      glm::lookAt(glm::vec3(0.0f, 0.005f + m_zoom, 0.035f + m_zoom),
+                  glm::vec3(0.0f, -0.1f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
   // Increase angle by 90 degrees per second
   auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
   m_angle = glm::wrapAngle(m_angle + glm::radians(90.0f) * deltaTime);
@@ -91,7 +116,7 @@ void Window::onUpdate() {
     star.m_position.z += deltaTime * 10.0f;
 
     if (m_gameData.m_input[static_cast<size_t>(Input::Up)]) {
-    star.m_position.z += deltaTime * 30.0f;
+      star.m_position.z += deltaTime * 30.0f;
     }
 
     if (m_gameData.m_input[static_cast<size_t>(Input::Down)]) {
@@ -99,7 +124,7 @@ void Window::onUpdate() {
     }
 
     if (m_gameData.m_input[static_cast<size_t>(Input::Left)]) {
-    star.m_position.x += deltaTime * 30.0f;
+      star.m_position.x += deltaTime * 30.0f;
     }
 
     if (m_gameData.m_input[static_cast<size_t>(Input::Right)]) {
@@ -113,14 +138,14 @@ void Window::onUpdate() {
       star.m_position.z = -100.0f; // Back to -100
     }
 
-    if (star.m_position.x > 100.0f) {
+    if (star.m_position.x > 20.0f) {
       randomizeStar(star);
-      star.m_position.x = -100.0f; // Back to -100
+      star.m_position.x = -20.0f; // Back to -100
     }
 
-    if (star.m_position.x < -100.0f) {
+    if (star.m_position.x < -20.0f) {
       randomizeStar(star);
-      star.m_position.x = 100.0f; // Back to -100
+      star.m_position.x = 20.0f; // Back to -100
     }
   }
 
@@ -147,6 +172,7 @@ void Window::onPaint() {
   // Set uniform variables that have the same value for every model
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
   abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f); // White
 
   //STARSHIP MODEL RENDER
@@ -220,9 +246,13 @@ void Window::onPaintUI() {
   }
 }
 
-void Window::onResize(glm::ivec2 const &size) { m_viewportSize = size; }
+void Window::onResize(glm::ivec2 const &size) { 
+  m_viewportSize = size; 
+  m_trackBall.resizeViewport(size);
+}
 
 void Window::onDestroy() {
   m_model.destroy();
+  m_additionalModel.destroy();
   abcg::glDeleteProgram(m_program);
 }

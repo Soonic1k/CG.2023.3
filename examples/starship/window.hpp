@@ -6,6 +6,7 @@
 #include "abcgOpenGL.hpp"
 #include "model.hpp"
 #include "gamedata.hpp"
+#include "trackball.hpp"
 
 class Window : public abcg::OpenGLWindow {
 protected:
@@ -26,18 +27,27 @@ private:
 
   Model m_model;
   Model m_additionalModel;
-
   GameData m_gameData;
+  TrackBall m_trackBall;
 
   struct Star {
     glm::vec3 m_position{};
     glm::vec3 m_rotationAxis{};
   };
 
+  struct Starship {
+    glm::vec3 m_rotationAxis{};
+  };
+
   std::array<Star, 500> m_stars;
+  Starship starship;
 
   float m_angle{};
+  float starship_angle{};
+  float m_zoom{};
 
+  glm::mat4 m_modelMatrix{1.0f};
+  glm::mat4 additionalModelMatrix{1.0f};
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
 
