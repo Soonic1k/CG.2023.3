@@ -5,9 +5,11 @@
 
 #include "abcgOpenGL.hpp"
 #include "model.hpp"
+#include "gamedata.hpp"
 
 class Window : public abcg::OpenGLWindow {
 protected:
+  void onEvent(SDL_Event const &event) override;
   void onCreate() override;
   void onUpdate() override;
   void onPaint() override;
@@ -24,6 +26,8 @@ private:
 
   Model m_model;
   Model m_additionalModel;
+
+  GameData m_gameData;
 
   struct Star {
     glm::vec3 m_position{};

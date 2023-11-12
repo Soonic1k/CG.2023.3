@@ -3,6 +3,35 @@
 #include <glm/gtc/random.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 
+
+
+// ------
+void Window::onEvent(SDL_Event const &event) {
+  // Keyboard events
+  if (event.type == SDL_KEYDOWN) {
+    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Up));
+    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
+      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Down));
+    if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
+      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Left));
+    if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
+      m_gameData.m_input.set(gsl::narrow<size_t>(Input::Right));
+  }
+  if (event.type == SDL_KEYUP) {
+    if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+      m_gameData.m_input.reset(gsl::narrow<size_t>(Input::Up));
+    if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s)
+      m_gameData.m_input.reset(gsl::narrow<size_t>(Input::Down));
+    if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a)
+      m_gameData.m_input.reset(gsl::narrow<size_t>(Input::Left));
+    if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
+      m_gameData.m_input.reset(gsl::narrow<size_t>(Input::Right));
+  }
+}
+
+// ----------
+
 void Window::onCreate() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
@@ -60,6 +89,14 @@ void Window::onUpdate() {
   for (auto &star : m_stars) {
     // Increase z by 10 units per second
     star.m_position.z += deltaTime * 10.0f;
+
+    if (m_gameData.m_input[static_cast<size_t>(Input::Up)]) {
+    star.m_position.z += deltaTime * 30.0f;
+    }
+
+    if (m_gameData.m_input[static_cast<size_t>(Input::Down)]) {
+      star.m_position.z -= deltaTime * 30.0f;
+    }
 
     // If this star is behind the camera, select a new random position &
     // orientation and move it back to -100
