@@ -195,3 +195,7 @@ O código apresentado inicializa e gerencia a janela de visualização.
 1. **Inicialização da Aplicação**: Inicia a aplicação e cria a janela de visualização por meio da classe `Window`.
 2. **Configurações da Janela**: Define as configurações da janela, como largura, altura, título e configurações específicas do OpenGL, como o número de amostras.
 3. **Execução do Aplicativo**: Inicia a execução do aplicativo gráfico por meio do método `run()` da classe `abcg::Application`.
+
+#### Assets
+1. Nave espacial: https://free3d.com/3d-model/defiant-719105.html
+2. Asteroide: https://free3d.com/3d-model/low-poly-rock-4631.html
