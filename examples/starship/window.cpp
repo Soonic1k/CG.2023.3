@@ -109,9 +109,9 @@ void Window::onCreate() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "depth.vert",
+      abcg::createOpenGLProgram({{.source = assetsPath + "gouraud.vert",
                                   .stage = abcg::ShaderStage::Vertex},
-                                  {.source = assetsPath + "depth.frag",
+                                  {.source = assetsPath + "gouraud.frag",
                                   .stage = abcg::ShaderStage::Fragment}});
 
   m_model.loadObj(assetsPath + "asteroid.obj"); //Change Stars image loaded on screen
@@ -119,9 +119,15 @@ void Window::onCreate() {
 
 
   //STARSHIP MODEL
-  m_additionalModel.loadObj(assetsPath + "starship.obj");
+  m_additionalModel.loadDiffuseTexture(assetsPath + "maps/roman_lamp_diffuse.jpg");
+  m_additionalModel.loadObj(assetsPath + "roman_lamp.obj");
   m_additionalModel.setupVAO(m_program);
   m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
+  m_Ka = m_model.getKa();
+  m_Kd = m_model.getKd();
+  m_Ks = m_model.getKs();
+  m_shininess = m_model.getShininess();
 
 
   // Camera at (0,0,0) and looking towards the negative z
@@ -226,14 +232,35 @@ void Window::onPaint() {
   auto const projMatrixLoc{abcg::glGetUniformLocation(m_program, "projMatrix")};
   auto const modelMatrixLoc{
       abcg::glGetUniformLocation(m_program, "modelMatrix")};
-  auto const colorLoc{abcg::glGetUniformLocation(m_program, "color")};
+  //auto const colorLoc{abcg::glGetUniformLocation(m_program, "color")};
+  auto const normalMatrixLoc{
+      abcg::glGetUniformLocation(m_program, "normalMatrix")};
+  auto const lightDirLoc{
+      abcg::glGetUniformLocation(m_program, "lightDirWorldSpace")};
+  auto const shininessLoc{abcg::glGetUniformLocation(m_program, "shininess")};
+  auto const IaLoc{abcg::glGetUniformLocation(m_program, "Ia")};
+  auto const IdLoc{abcg::glGetUniformLocation(m_program, "Id")};
+  auto const IsLoc{abcg::glGetUniformLocation(m_program, "Is")};
+  auto const KaLoc{abcg::glGetUniformLocation(m_program, "Ka")};
+  auto const KdLoc{abcg::glGetUniformLocation(m_program, "Kd")};
+  auto const KsLoc{abcg::glGetUniformLocation(m_program, "Ks")};
+  auto const diffuseTexLoc{abcg::glGetUniformLocation(m_program, "diffuseTex")};
+  auto const mappingModeLoc{abcg::glGetUniformLocation(m_program, "mappingMode")};
+
+
+  auto const lightDirRotated{m_lightDir};
+  abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
+  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
+  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
 
 
   // Set uniform variables that have the same value for every model
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
-  abcg::glUniform4f(colorLoc, 0.7f, 0.7f, 0.7f, 0.7f); // White
+  abcg::glUniform1i(diffuseTexLoc, 0);
+  abcg::glUniform1i(mappingModeLoc, m_mappingMode);
 
   //STARSHIP MODEL RENDER
   glm::mat4 additionalModelMatrix{1.0f};
@@ -241,7 +268,17 @@ void Window::onPaint() {
   additionalModelMatrix = glm::scale(additionalModelMatrix, glm::vec3(0.014f, 0.014f, 0.014f));
   additionalModelMatrix = glm::rotate(additionalModelMatrix, m_angle_ship, starship.m_rotationAxis);
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &additionalModelMatrix[0][0]);
+  
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+  abcg::glUniform1f(shininessLoc, m_shininess);
+
   m_additionalModel.render();
+
+  auto const modelViewMatrix{glm::mat3(m_viewMatrix * m_modelMatrix)};
+  auto const normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+  abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
   // Render each star
   for (auto &star : m_stars) {
@@ -263,6 +300,42 @@ void Window::onPaint() {
 
 void Window::onPaintUI() {
   abcg::OpenGLWindow::onPaintUI();
+
+
+  auto const widgetSize{ImVec2(222, 244)};
+  ImGui::SetNextWindowPos(ImVec2(m_viewportSize.x - widgetSize.x - 5,
+                                  m_viewportSize.y - widgetSize.y - 5));
+  ImGui::SetNextWindowSize(widgetSize);
+  ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoDecoration);
+
+  ImGui::Text("Light properties");
+
+  // Slider to control light properties
+  ImGui::PushItemWidth(widgetSize.x - 36);
+  ImGui::ColorEdit3("Ia", &m_Ia.x, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Id", &m_Id.x, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
+  ImGui::PopItemWidth();
+
+  ImGui::Spacing();
+
+  ImGui::Text("Material properties");
+
+  // Slider to control material properties
+  ImGui::PushItemWidth(widgetSize.x - 36);
+  ImGui::ColorEdit3("Ka", &m_Ka.x, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Kd", &m_Kd.x, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Ks", &m_Ks.x, ImGuiColorEditFlags_Float);
+  ImGui::PopItemWidth();
+
+  // Slider to control the specular shininess
+  ImGui::PushItemWidth(widgetSize.x - 16);
+  ImGui::SliderFloat(" ", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
+  ImGui::PopItemWidth();
+
+  //ImGui::End();
+
+
 
   {
     auto const widgetSize{ImVec2(218, 62)};
@@ -302,7 +375,6 @@ void Window::onPaintUI() {
       }
       ImGui::PopItemWidth();
     }
-
     ImGui::End();
   }
 }
