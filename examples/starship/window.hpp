@@ -61,15 +61,50 @@ private:
   void randomizeStar(Star &star);
   int m_mappingMode{};
   glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};
-  glm::vec4 m_Ia{0.7f, 0.7f, 0.7f, 1.0f};
-  glm::vec4 m_Id{0.1f, 0.7f, 0.7f, 1.0f};
-  glm::vec4 m_Is{0.7f, 0.5f, 0.5f, 1.0f};
+  glm::vec4 m_Ia{1.0f, 1.0f, 1.0f, 1.0f};
+  glm::vec4 m_Id{1.0f, 1.0f, 1.0f, 1.0f};
+  glm::vec4 m_Is{1.0f, 1.0f, 1.0f, 1.0f};
   glm::vec4 m_Ka{};
   glm::vec4 m_Kd{};
   glm::vec4 m_Ks{};
   float m_shininess{};
 
   void loadModel(std::string_view path);
+
+    // Skybox
+  //std::string const m_skyShaderName{"skybox"};
+  GLuint m_skyVAO{};
+  GLuint m_skyVBO{};
+  GLuint m_skyProgram{};
+
+  // clang-format off
+  std::array<glm::vec3, 36> const m_skyPositions{{
+      // Front
+      {-2, -2, +2}, {+2, -2, +2}, {+2, +2, +2},
+      {-2, -2, +2}, {+2, +2, +2}, {-2, +2, +2},
+      // Back
+      {+2, -2, -2}, {-2, -2, -2}, {-2, +2, -2},
+      {+2, -2, -2}, {-2, +2, -2}, {+2, +2, -2},
+      // Right
+      {+1, -1, -1}, {+1, +1, -1}, {+1, +1, +1},
+      {+1, -1, -1}, {+1, +1, +1}, {+1, -1, +1},
+      // Left
+      {-1, -1, +1}, {-1, +1, +1}, {-1, +1, -1},
+      {-1, -1, +1}, {-1, +1, -1}, {-1, -1, -1},
+      // Top
+      {-1, +1, +1}, {+1, +1, +1}, {+1, +1, -1},
+      {-1, +1, +1}, {+1, +1, -1}, {-1, +1, -1},
+      // Bottom
+      {-2, -2, -2}, {+2, -2, -2}, {+2, -2, +2},
+      {-2, -2, -2}, {+2, -2, +2}, {-2, -2, +2}}};
+  // clang-format on
+
+  void createSkybox();
+  void createSpaceship();
+  void createAsteroid();
+  void renderSkybox();
+  void destroySkybox() const;
+
 };
 
 #endif
