@@ -109,25 +109,26 @@ void Window::onCreate() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "gouraud.vert",
+      abcg::createOpenGLProgram({{.source = assetsPath + "texture.vert",
                                   .stage = abcg::ShaderStage::Vertex},
-                                  {.source = assetsPath + "gouraud.frag",
+                                  {.source = assetsPath + "texture.frag",
                                   .stage = abcg::ShaderStage::Fragment}});
 
+  m_model.loadDiffuseTexture(assetsPath + "Rock-Texture-Surface.jpg");
   m_model.loadObj(assetsPath + "asteroid.obj"); //Change Stars image loaded on screen
   m_model.setupVAO(m_program);
 
 
   //STARSHIP MODEL
-  m_additionalModel.loadDiffuseTexture(assetsPath + "maps/roman_lamp_diffuse.jpg");
-  m_additionalModel.loadObj(assetsPath + "roman_lamp.obj");
+  m_additionalModel.loadDiffuseTexture(assetsPath + "SciFi_Fighter_AK5-diffuse.jpg");
+  m_additionalModel.loadObj(assetsPath + "SciFi_Fighter_AK5.obj");
   m_additionalModel.setupVAO(m_program);
   m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
-  m_Ka = m_model.getKa();
-  m_Kd = m_model.getKd();
-  m_Ks = m_model.getKs();
-  m_shininess = m_model.getShininess();
+  m_Ka = m_additionalModel.getKa();
+  m_Kd = m_additionalModel.getKd();
+  m_Ks = m_additionalModel.getKs();
+  m_shininess = m_additionalModel.getShininess();
 
 
   // Camera at (0,0,0) and looking towards the negative z

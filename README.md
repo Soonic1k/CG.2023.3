@@ -197,5 +197,5 @@ O código apresentado inicializa e gerencia a janela de visualização.
 3. **Execução do Aplicativo**: Inicia a execução do aplicativo gráfico por meio do método `run()` da classe `abcg::Application`.
 
 #### Assets
-1. Nave espacial: https://free3d.com/3d-model/defiant-719105.html
+1. Nave espacial: https://www.cgtrader.com/free-3d-models/space/spaceship/free-scifi-fighter
 2. Asteroide: https://free3d.com/3d-model/low-poly-rock-4631.html
