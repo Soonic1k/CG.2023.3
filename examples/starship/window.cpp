@@ -109,9 +109,9 @@ void Window::onCreate() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "texture.vert",
+      abcg::createOpenGLProgram({{.source = assetsPath + "normalmapping.vert",
                                   .stage = abcg::ShaderStage::Vertex},
-                                  {.source = assetsPath + "texture.frag",
+                                  {.source = assetsPath + "normalmapping.frag",
                                   .stage = abcg::ShaderStage::Fragment}});
 
   m_model.loadDiffuseTexture(assetsPath + "Rock-Texture-Surface.jpg");
