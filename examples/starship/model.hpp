@@ -16,7 +16,7 @@ class Model {
 public:
   void loadCubeTexture(std::string const &path);
   void loadDiffuseTexture(std::string_view path);
-  void loadNormalTexture(std::string_view path);
+  //void loadNormalTexture(std::string_view path);
   void loadObj(std::string_view path, bool standardize = true);
   void render(int numTriangles = -1) const;
   void setupVAO(GLuint program);
@@ -52,7 +52,7 @@ private:
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};
   void computeNormals();
-  void computeTangents();
+  //void computeTangents();
   void createBuffers();
   void standardize();
 };

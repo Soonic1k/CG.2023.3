@@ -11,8 +11,8 @@ newmtl SciFi_Fighter_AK5
 	Kd 0.588000 0.588000 0.588000
 	Ks 0.414000 0.414000 0.414000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka SciFi_Fighter_AK5-diffuse.jpg
-	map_Kd SciFi_Fighter_AK5-diffuse.jpg
-	map_Ke SciFi_Fighter_AK5-Lights.jpg
-	map_bump SciFi_Fighter_AK5-Normal_Map.jpg
-	bump SciFi_Fighter_AK5-Normal_Map.jpg
+	map_Ka maps/SciFi_Fighter_AK5-diffuse.jpg
+	map_Kd maps/SciFi_Fighter_AK5-diffuse.jpg
+	map_Ke maps/SciFi_Fighter_AK5-Lights.jpg
+	map_bump maps/SciFi_Fighter_AK5-Normal_Map.jpg
+	bump maps/SciFi_Fighter_AK5-Normal_Map.jpg

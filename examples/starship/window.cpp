@@ -108,9 +108,7 @@ void Window::onCreate() {
   //abcg::glClearColor(0, 0, 0, 1);
   abcg::glEnable(GL_DEPTH_TEST);
 
-
   createSpaceship();
-
   createAsteroid();
 
   // Camera at (0,0,0) and looking towards the negative z
@@ -226,10 +224,10 @@ void Window::onPaint() {
   auto const KaLoc{abcg::glGetUniformLocation(m_program, "Ka")};
   auto const KdLoc{abcg::glGetUniformLocation(m_program, "Kd")};
   auto const KsLoc{abcg::glGetUniformLocation(m_program, "Ks")};
-  auto const diffuseTexLoc{abcg::glGetUniformLocation(m_program, "diffuseTex")};
-  auto const mappingModeLoc{abcg::glGetUniformLocation(m_program, "mappingMode")};
+  //auto const diffuseTexLoc{abcg::glGetUniformLocation(m_program, "diffuseTex")};
+  //auto const mappingModeLoc{abcg::glGetUniformLocation(m_program, "mappingMode")};
 
-  auto const normalTexLoc{abcg::glGetUniformLocation(m_program, "normalTex")};
+  //auto const normalTexLoc{abcg::glGetUniformLocation(m_program, "normalTex")};
   auto const cubeTexLoc{abcg::glGetUniformLocation(m_program, "cubeTex")};
  
   auto const lightDirRotated{m_lightDir};
@@ -243,11 +241,11 @@ void Window::onPaint() {
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
-  abcg::glUniform1i(diffuseTexLoc, 0);
-  abcg::glUniform1i(mappingModeLoc, m_mappingMode);
-  abcg::glUniform1i(normalTexLoc, 1);
+  //abcg::glUniform1i(diffuseTexLoc, 0);
+  //abcg::glUniform1i(mappingModeLoc, m_mappingMode);
+  //abcg::glUniform1i(normalTexLoc, 1);
   abcg::glUniform1i(cubeTexLoc, 2);
-  abcg::glUniform1i(mappingModeLoc, m_mappingMode);
+  //abcg::glUniform1i(mappingModeLoc, m_mappingMode);
 
 
   //STARSHIP MODEL RENDER
@@ -281,9 +279,10 @@ void Window::onPaint() {
 
     m_model.render();
 
-    //renderSkybox();
-
   }
+
+  //Render Skybox
+  //renderSkybox();
 
   abcg::glUseProgram(0);
 }
@@ -373,15 +372,10 @@ void Window::createAsteroid() {
 
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
-  m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "normalmapping.vert",
-                                  .stage = abcg::ShaderStage::Vertex},
-                                  {.source = assetsPath + "normalmapping.frag",
-                                  .stage = abcg::ShaderStage::Fragment}});
-
-  m_model.loadDiffuseTexture(assetsPath + "Rock-Texture-Surface.jpg");
+  m_model.loadDiffuseTexture(assetsPath + "maps/Rock-Texture-Surface.jpg");
   m_model.loadObj(assetsPath + "asteroid.obj"); //Change Stars image loaded on screen
   m_model.setupVAO(m_program);
+  
 
 }
 
@@ -396,9 +390,10 @@ void Window::createSpaceship() {
 
   //STARSHIP MODEL
   //m_additionalModel.loadDiffuseTexture(assetsPath + "SciFi_Fighter_AK5-diffuse.jpg");
+  m_additionalModel.loadCubeTexture(assetsPath + "maps/");
   m_additionalModel.loadObj(assetsPath + "SciFi_Fighter_AK5.obj");
   //m_additionalModel.loadNormalTexture(assetsPath + "maps/pattern_normal.png");
-  m_additionalModel.loadCubeTexture(assetsPath + "maps/cube/");
+  
   m_additionalModel.setupVAO(m_program);
   m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -414,12 +409,10 @@ void Window::createSkybox() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
   // Create skybox program
-
-  m_skyProgram =
-      abcg::createOpenGLProgram({{.source = assetsPath + "skybox.vert",
-                                  .stage = abcg::ShaderStage::Vertex},
-                                  {.source = assetsPath + "skybox.frag",
-                                  .stage = abcg::ShaderStage::Fragment}});
+  auto const path{assetsPath + "skybox"};
+  m_skyProgram = abcg::createOpenGLProgram(
+      {{.source = path + ".vert", .stage = abcg::ShaderStage::Vertex},
+       {.source = path + ".frag", .stage = abcg::ShaderStage::Fragment}});
 
   // Generate VBO
   abcg::glGenBuffers(1, &m_skyVBO);
@@ -483,6 +476,7 @@ void Window::onResize(glm::ivec2 const &size) {
 void Window::onDestroy() {
   m_model.destroy();
   m_additionalModel.destroy();
+  destroySkybox();
   abcg::glDeleteProgram(m_program);
 }
 

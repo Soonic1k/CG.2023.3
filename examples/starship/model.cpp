@@ -44,7 +44,7 @@ void Model::computeNormals() {
   m_hasNormals = true;
 }
 
-void Model::computeTangents() {
+/*void Model::computeTangents() {
   // Reserve space for bitangents
   std::vector bitangents(m_vertices.size(), glm::vec3(0));
 
@@ -103,7 +103,7 @@ void Model::computeTangents() {
     auto const handedness{glm::dot(b, bitangents.at(i))};
     vertex.tangent.w = (handedness < 0.0f) ? -1.0f : 1.0f;
   }
-}
+}*/
 
 void Model::createBuffers() {
   // Delete previous buffers
@@ -145,13 +145,13 @@ void Model::loadDiffuseTexture(std::string_view path) {
   m_diffuseTexture = abcg::loadOpenGLTexture({.path = path});
 }
 
-void Model::loadNormalTexture(std::string_view path) {
+/*void Model::loadNormalTexture(std::string_view path) {
   if (!std::filesystem::exists(path))
     return;
 
   abcg::glDeleteTextures(1, &m_normalTexture);
   m_normalTexture = abcg::loadOpenGLTexture({.path = path});
-}
+}*/
 
 void Model::loadObj(std::string_view path, bool standardize) {
   
@@ -202,10 +202,6 @@ void Model::loadObj(std::string_view path, bool standardize) {
                         attrib.vertices.at(startIndex + 1),
                         attrib.vertices.at(startIndex + 2)};
 
-      //auto const vx{attrib.vertices.at(startIndex + 0)};
-      //auto const vy{attrib.vertices.at(startIndex + 1)};
-      //auto const vz{attrib.vertices.at(startIndex + 2)};
-
       // Vertex normal
       glm::vec3 normal{};
       if (index.normal_index >= 0) {
@@ -250,13 +246,13 @@ void Model::loadObj(std::string_view path, bool standardize) {
 
     if (!mat.diffuse_texname.empty())
       loadDiffuseTexture(basePath + mat.diffuse_texname);
-  } /*else {
+  } else {
     // Default values
     m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
     m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
     m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
     m_shininess = 25.0f;
-  }*/
+  }
 
   if (standardize) {
     Model::standardize();
