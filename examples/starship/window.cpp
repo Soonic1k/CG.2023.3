@@ -120,7 +120,7 @@ void Window::onCreate() {
 
 
   //STARSHIP MODEL
-  m_additionalModel.loadDiffuseTexture(assetsPath + "SciFi_Fighter_AK5-diffuse.jpg");
+  //m_additionalModel.loadDiffuseTexture(assetsPath + "SciFi_Fighter_AK5-diffuse.jpg");
   m_additionalModel.loadObj(assetsPath + "SciFi_Fighter_AK5.obj");
   m_additionalModel.setupVAO(m_program);
   m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
