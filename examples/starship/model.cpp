@@ -45,7 +45,7 @@ void Model::computeNormals() {
   m_hasNormals = true;
 }
 
-void Model::computeTangents() {
+/*void Model::computeTangents() {
   // Reserve space for bitangents
   std::vector bitangents(m_vertices.size(), glm::vec3(0));
 
@@ -104,7 +104,7 @@ void Model::computeTangents() {
     auto const handedness{glm::dot(b, bitangents.at(i))};
     vertex.tangent.w = (handedness < 0.0f) ? -1.0f : 1.0f;
   }
-}
+}*/
 
 void Model::createBuffers() {
   // Delete previous buffers
@@ -135,7 +135,7 @@ void Model::loadCubeTexture(std::string const &path) {
   abcg::glDeleteTextures(1, &m_cubeTexture);
   m_cubeTexture = abcg::loadOpenGLCubemap(
       {.paths = {path + "posx.jpg", path + "negx.jpg", path + "posy.jpg",
-                path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"}});
+                 path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"}});
 }
 
 void Model::loadDiffuseTexture(std::string_view path) {
