@@ -1,4 +1,5 @@
 #include "model.hpp"
+
 #include <filesystem>
 #include <unordered_map>
 
@@ -134,7 +135,7 @@ void Model::loadCubeTexture(std::string const &path) {
   abcg::glDeleteTextures(1, &m_cubeTexture);
   m_cubeTexture = abcg::loadOpenGLCubemap(
       {.paths = {path + "posx.jpg", path + "negx.jpg", path + "posy.jpg",
-                 path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"}});
+                path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"}});
 }
 
 void Model::loadDiffuseTexture(std::string_view path) {
@@ -145,13 +146,13 @@ void Model::loadDiffuseTexture(std::string_view path) {
   m_diffuseTexture = abcg::loadOpenGLTexture({.path = path});
 }
 
-/*void Model::loadNormalTexture(std::string_view path) {
+void Model::loadNormalTexture(std::string_view path) {
   if (!std::filesystem::exists(path))
     return;
 
   abcg::glDeleteTextures(1, &m_normalTexture);
   m_normalTexture = abcg::loadOpenGLTexture({.path = path});
-}*/
+}
 
 void Model::loadObj(std::string_view path, bool standardize) {
   
