@@ -199,3 +199,5 @@ O código apresentado inicializa e gerencia a janela de visualização.
 #### Assets
 1. Nave espacial: https://www.cgtrader.com/free-3d-models/space/spaceship/free-scifi-fighter
 2. Asteroide: https://free3d.com/3d-model/low-poly-rock-4631.html
+3. Imagem de fundo: https://unblast.com/10-free-space-background-images-jpg/
+4. Imagem para Cubemap: https://jaxry.github.io/panorama-to-cubemap/

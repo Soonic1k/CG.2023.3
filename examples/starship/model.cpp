@@ -44,7 +44,7 @@ void Model::computeNormals() {
   m_hasNormals = true;
 }
 
-/*void Model::computeTangents() {
+void Model::computeTangents() {
   // Reserve space for bitangents
   std::vector bitangents(m_vertices.size(), glm::vec3(0));
 
@@ -103,7 +103,7 @@ void Model::computeNormals() {
     auto const handedness{glm::dot(b, bitangents.at(i))};
     vertex.tangent.w = (handedness < 0.0f) ? -1.0f : 1.0f;
   }
-}*/
+}
 
 void Model::createBuffers() {
   // Delete previous buffers
@@ -332,6 +332,17 @@ void Model::setupVAO(GLuint program) {
                                 sizeof(Vertex),
                                 reinterpret_cast<void *>(offset));
   }
+
+    auto const tangentCoordAttribute{
+      abcg::glGetAttribLocation(program, "inTangent")};
+  if (tangentCoordAttribute >= 0) {
+    abcg::glEnableVertexAttribArray(tangentCoordAttribute);
+    auto const offset{offsetof(Vertex, tangent)};
+    abcg::glVertexAttribPointer(tangentCoordAttribute, 4, GL_FLOAT, GL_FALSE,
+                                sizeof(Vertex),
+                                reinterpret_cast<void *>(offset));
+  }
+
 
   // End of binding
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
