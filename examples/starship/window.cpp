@@ -282,7 +282,7 @@ void Window::onPaint() {
   }
 
   //Render Skybox
-  //renderSkybox();
+  renderSkybox();
 
   abcg::glUseProgram(0);
 }
@@ -373,7 +373,7 @@ void Window::createAsteroid() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
   m_model.loadDiffuseTexture(assetsPath + "maps/Rock-Texture-Surface.jpg");
-  //m_model.loadCubeTexture(assetsPath + "maps/");
+  m_model.loadCubeTexture(assetsPath + "maps/");
   m_model.loadObj(assetsPath + "asteroid.obj"); //Change Stars image loaded on screen
   m_model.setupVAO(m_program);
 }
