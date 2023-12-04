@@ -43,6 +43,7 @@ void Model::computeNormals() {
   }
 
   m_hasNormals = true;
+  
 }
 
 /*void Model::computeTangents() {

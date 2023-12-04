@@ -224,17 +224,22 @@ void Window::onPaint() {
   auto const KaLoc{abcg::glGetUniformLocation(m_program, "Ka")};
   auto const KdLoc{abcg::glGetUniformLocation(m_program, "Kd")};
   auto const KsLoc{abcg::glGetUniformLocation(m_program, "Ks")};
+  
   auto const diffuseTexLoc{abcg::glGetUniformLocation(m_program, "diffuseTex")};
   auto const mappingModeLoc{abcg::glGetUniformLocation(m_program, "mappingMode")};
-
   auto const normalTexLoc{abcg::glGetUniformLocation(m_program, "normalTex")};
   auto const cubeTexLoc{abcg::glGetUniformLocation(m_skyProgram, "cubeTex")};
  
+  //Iluminação
   auto const lightDirRotated{m_lightDir};
   abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
   abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
   abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
   abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+  abcg::glUniform1f(shininessLoc, m_shininess);
 
 
   // Set uniform variables that have the same value for every model
@@ -254,11 +259,6 @@ void Window::onPaint() {
   additionalModelMatrix = glm::scale(additionalModelMatrix, glm::vec3(1.0f, 1.0f, 1.0f)); //0.014
   additionalModelMatrix = glm::rotate(additionalModelMatrix, m_angle_ship, starship.m_rotationAxis);
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &additionalModelMatrix[0][0]);
-  
-  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
-  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
-  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
-  abcg::glUniform1f(shininessLoc, m_shininess);
 
   m_additionalModel.render();
 
@@ -373,7 +373,7 @@ void Window::createAsteroid() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
   m_model.loadDiffuseTexture(assetsPath + "maps/Rock-Texture-Surface.jpg");
-  m_model.loadCubeTexture(assetsPath + "maps/");
+  //m_model.loadCubeTexture(assetsPath + "maps/");
   m_model.loadObj(assetsPath + "asteroid.obj"); //Change Stars image loaded on screen
   m_model.setupVAO(m_program);
 }
@@ -388,10 +388,11 @@ void Window::createSpaceship() {
                                   .stage = abcg::ShaderStage::Fragment}});
 
   //STARSHIP MODEL
-  //m_additionalModel.loadDiffuseTexture(assetsPath + "SciFi_Fighter_AK5-diffuse.jpg");
-  m_additionalModel.loadObj(assetsPath + "SciFi_Fighter_AK5.obj");
+  //m_additionalModel.loadDiffuseTexture(assetsPath + "maps/SciFi_Fighter_AK5-diffuse.jpg");
   //m_additionalModel.loadNormalTexture(assetsPath + "maps/pattern_normal.png");
-  
+  //m_additionalModel.loadCubeTexture(assetsPath + "maps/");
+  m_model.loadCubeTexture(assetsPath + "maps/");
+  m_additionalModel.loadObj(assetsPath + "SciFi_Fighter_AK5.obj");
   m_additionalModel.setupVAO(m_program);
   m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
