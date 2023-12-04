@@ -467,6 +467,7 @@ void Window::renderSkybox() {
   abcg::glDepthFunc(GL_LEQUAL);
   abcg::glDrawArrays(GL_TRIANGLES, 0, m_skyPositions.size());
   abcg::glDepthFunc(GL_LESS);
+  abcg::glFrontFace(GL_CCW);
 
   abcg::glBindVertexArray(0);
   abcg::glUseProgram(0);
