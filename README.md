@@ -7,6 +7,306 @@ Projeto para a disciplina de Computação Gráfica utilizando a biblioteca ABCg.
 - Matheus Silvério Oliveira - 11201720810
 - Sonny Yassuaki R. Ganiko - 21050913
 
+## Atividade 03:
+As funções descritas abaixo foram criadas para a Atividade 3 ou foram alteradas em relação a Atividade 2, as demais funções não listadas neste capítulo permaneceram inalteradas ou sofreram correções mínimas.
+
+### Classe Window
+
+#### Carregamento do Modelo da Nave
+
+A função `Window::createSpaceship()` é responsável por carregar e configurar o modelo 3D da nave espacial (spaceship) no ambiente do jogo. Ela carrega as texturas difusa e normal, o modelo 3D em si e configura os parâmetros de material necessários para a renderização.
+
+##### Carregamento do Modelo da Nave Espacial
+- **Carregamento do Modelo**:
+  - Utiliza a classe `Model` para carregar o modelo 3D da nave espacial a partir de um arquivo obj.
+  - Configura o Vertex Array Object (VAO) associado ao modelo.
+
+##### Carregamento das Texturas
+- **Carregamento das Texturas**:
+  - Carrega a textura difusa da nave espacial a partir de um arquivo de imagem (jpg).
+  - Carrega a textura normal da nave espacial a partir de um arquivo de mapa normal (png).
+
+##### Configuração dos Materiais
+- **Configuração dos Materiais**:
+  - Obtém os coeficientes de reflectância (Ka, Kd, Ks) e a intensidade especular (shininess) associados ao modelo no arquivo mtl correspondente.
+
+##### Posicionamento Inicial da Nave Espacial
+- **Posicionamento Inicial**:
+  - Define a posição inicial da nave espacial no ambiente.
+
+#### Carregamento do Modelo de Asteróides
+
+A função `Window::createAsteroid()` é responsável por carregar e configurar o modelo 3D de um asteroide no ambiente do jogo. Ela carrega a textura do céu (skybox), a textura difusa do asteroide, o modelo 3D em si e configura os parâmetros necessários para a renderização.
+
+##### Carregamento do Modelo do Asteroide
+- **Carregamento do Modelo**:
+  - Utiliza a classe `Model` para carregar o modelo 3D do asteroide a partir de um arquivo obj.
+  - Configura o Vertex Array Object (VAO) associado ao modelo.
+
+##### Carregamento das Texturas
+- **Carregamento da Textura do Céu (Skybox)**:
+  - Carrega a textura do céu (skybox) a partir de um diretório contendo as imagens correspondentes aos seis lados.
+
+- **Carregamento da Textura Difusa do Asteroide**:
+  - Carrega a textura difusa (albedo) do asteroide a partir de um arquivo de imagem (jpg).
+
+#### Carregamento do Skybox
+
+A função `Window::createSkybox()` é responsável por criar e configurar o céu (skybox) no ambiente do jogo. Ela compila e vincula os shaders específicos para o céu, gera um Vertex Buffer Object (VBO) contendo as posições dos vértices do skybox e configura o Vertex Array Object (VAO) associado ao skybox.
+
+##### Compilação e Vinculação dos Shaders
+- **Programa do Skybox**:
+  - Compila e vincula shaders vertex e fragment específicos para o skybox.
+  - Usa a classe `abcg::createOpenGLProgram` para gerar o programa do skybox.
+
+##### Configuração do VBO e VAO
+- **Geração do VBO**:
+  - Gera um VBO para armazenar as posições dos vértices do skybox.
+  - Preenche o VBO com as posições predefinidas do skybox.
+
+- **Vinculação do VAO**:
+  - Gera um VAO para armazenar o estado de configuração do VBO.
+  - Vincula o VAO atual.
+  - Vincula o VBO ao VAO.
+  - Configura o atributo de posição do shader.
+
+#### Função Window::onCreate()
+
+A função `Window::onCreate()` é chamada durante a inicialização da janela do OpenGL. Ela configura o ambiente gráfico, compila shaders, cria modelos e configura a câmera. Além disso, a função chama outras funções especializadas para criar elementos específicos do jogo, como a espaçonave, asteroides, estrelas e o céu (skybox).
+
+##### Configuração Inicial do OpenGL
+- **Limpeza de Buffer**:
+  - Define a cor de limpeza do buffer de cor para preto.
+  - Ativa o teste de profundidade.
+
+- **Compilação e Vinculação de Shaders**:
+  - Compila e vincula shaders vertex e fragment para normal mapping.
+  - Utiliza a classe `abcg::createOpenGLProgram` para gerar o programa.
+
+##### Criação de Objetos 3D
+- **Espaçonave (Spaceship)**:
+  - Chama a função `createSpaceship()` para carregar e configurar a modelagem 3D da espaçonave.
+  - Configura materiais (Ka, Kd, Ks, brilho) da espaçonave.
+
+- **Asteroides**:
+  - Chama a função `createAsteroid()` para carregar e configurar a modelagem 3D de asteroides.
+  - Configura texturas e materiais dos asteroides.
+
+- **Skybox**:
+  - Chama a função `createSkybox()` para criar e configurar o céu (skybox).
+
+##### Configuração da Câmera
+- **Matriz de Visualização (View Matrix)**:
+  - Configura a matriz de visualização usando a função `glm::lookAt` para definir a posição da câmera (eye), o ponto de visão (at) e a direção "para cima" (up).
+
+##### Configuração Inicial do Jogo
+- **Rotação Inicial da Espaçonave**:
+  - Configura a rotação inicial da espaçonave.
+
+- **Configuração Inicial das Estrelas**:
+  - Chama a função `randomizeStar` para inicializar as posições e orientações iniciais das estrelas.
+
+#### Renderização do Skybox
+
+A função `Window::renderSkybox()` é responsável por renderizar o céu (skybox) na cena. Ela configura e utiliza shaders específicos para renderização do skybox, aplicando uma textura de mapa de cubo para criar um ambiente imersivo ao redor da cena principal.
+
+##### Renderização do Skybox
+- **Uso do Programa do Skybox**:
+  - Ativa o programa do skybox usando `abcg::glUseProgram(m_skyProgram)`.
+
+- **Localização de Uniformes**:
+  - Obtém as localizações das variáveis uniformes no programa do skybox, incluindo as matrizes `viewMatrix`, `projMatrix` e a textura do mapa de cubo (`skyTex`).
+  - `viewMatrixLoc`: Localização da matriz de visualização.
+  - `projMatrixLoc`: Localização da matriz de projeção.
+  - `skyTexLoc`: Localização da textura do mapa de cubo.
+
+- **Configuração das Matrizes de Visualização e Projeção**:
+  - Configura uma matriz `projView` (100.0f) para a matriz de visualização.
+  - Atualiza as variáveis uniformes `viewMatrix` e `projMatrix` com as matrizes de visualização e projeção.
+
+- **Vinculação e Ativação de Texturas**:
+  - Ativa a textura do mapa de cubo, que foi carregada previamente durante a inicialização.
+  - A textura é vinculada à unidade de textura GL_TEXTURE0.
+
+- **Renderização do Skybox**:
+  - Habilita o teste de profundidade e a face traseira do skybox.
+  - Configura a função de teste de profundidade para `GL_LEQUAL`.
+  - Desenha os triângulos do skybox usando `abcg::glDrawArrays(GL_TRIANGLES, 0, m_skyPositions.size())`.
+  - Restaura a função de teste de profundidade para `GL_LESS` após a renderização.
+
+- **Desativação de Atributos e Programa**:
+  - Desabilita a matriz de atributos do VAO do skybox.
+  - Desativa o programa do skybox usando `abcg::glUseProgram(0)`.
+
+#### Função Window::onPaint()
+
+A função `Window::onPaint()` é chamada para realizar a renderização principal da cena. Nesta função, objetos 3D, como a nave espacial, asteroides e o skybox, são renderizados usando shaders e técnicas de iluminação.
+
+##### Configuração Inicial
+- **Limpeza de Buffers**:
+  - Limpa os buffers de cor e profundidade usando `abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)`.
+
+- **Configuração do Viewport**:
+  - Configura a visualização usando `abcg::glViewport(0, 0, m_viewportSize.x, m_viewportSize.y)`.
+
+- **Uso do Programa Principal**:
+  - Ativa o programa principal da aplicação usando `abcg::glUseProgram(m_program)`.
+
+##### Uniformes e Localizações
+- **Obtenção de Localizações Uniformes**:
+  - Obtém as localizações das variáveis uniformes necessárias para a renderização do modelo 3D.
+  - Localizações incluem matrizes de visão (`viewMatrix`), projeção (`projMatrix`), modelo (`modelMatrix`) e normal (`normalMatrix`).
+  - Localizações de texturas e modos de mapeamento também são obtidas.
+
+##### Iluminação e Materiais
+- **Configuração de Iluminação e Materiais**:
+  - Configura as propriedades de iluminação e materiais, incluindo a direção da luz (`lightDirWorldSpace`), intensidades de luz ambiente (`Ia`), difusa (`Id`) e especular (`Is`), e coeficientes de material (`Ka`, `Kd`, `Ks`).
+  - Define a rugosidade do material (`shininess`).
+
+##### Renderização da Nave Espacial
+- **Renderização da Nave Espacial**:
+  - Configura a matriz de modelo para a nave espacial.
+  - Aplica as transformações de translação, escala e rotação.
+  - Renderiza a nave espacial usando `m_additionalModel.render()`.
+
+##### Renderização dos Asteroides
+- **Renderização dos Asteroides**:
+  - Para cada asteroide na lista, calcula a matriz de modelo e renderiza o asteroide usando `m_model.render()`.
+
+##### Renderização do Skybox
+- **Renderização do Skybox**:
+  - Chama a função `renderSkybox()` para renderizar o skybox.
+
+##### Limpeza e Desativação
+- **Limpeza e Desativação**:
+  - Desativa o programa principal usando `abcg::glUseProgram(0)`.
+
+#### Função Window::onPaintUI()
+
+A função `Window::onPaintUI()` é responsável por renderizar a interface gráfica do usuário (GUI) durante o processo de pintura. Ela utiliza a biblioteca ImGui para criar elementos interativos, como sliders e janelas de configuração, que permitem ao usuário ajustar parâmetros em tempo real.
+
+##### Janela de Propriedades de Luz
+- **Controles de Luz**:
+  - Utiliza sliders de cores para ajustar as propriedades de luz ambiente (`Ia`), difusa (`Id`), e especular (`Is`).
+  - Os controles permitem ao usuário interagir diretamente com as propriedades de luz.
+
+##### Janela de Configuração Geral
+- **Seleção de Projeção**:
+  - Oferece uma caixa de combinação para escolher entre projeção perspectiva e ortográfica (`Perspective` e `Orthographic`).
+  - Atualiza a matriz de projeção com base na escolha do usuário.
+
+- **Ajuste do Campo de Visão (FOV)**:
+  - Se a projeção perspectiva estiver selecionada, exibe um slider para ajustar o campo de visão (`FOV`) em graus.
+  - Atualiza a matriz de projeção conforme o usuário ajusta o slider.
+
+#### Função Window::onDestroy()
+
+A função `Window::onDestroy()` é responsável por liberar os recursos alocados durante a execução do programa, garantindo uma limpeza adequada e prevenindo vazamentos de memória.
+
+##### Liberação de Modelos e Texturas
+- `m_model.destroy()`: Libera os recursos associados ao modelo principal (asteroide). Isso inclui buffers, texturas e objetos de array de vértices (VAO).
+- `m_additionalModel.destroy()`: Libera os recursos associados ao modelo adicional (espaçonave). Semelhante ao modelo principal, isso inclui buffers, texturas e VAO.
+
+### Liberação do Programa da Skybox
+- `abcg::glDeleteProgram(m_skyProgram)`: Deleta o programa OpenGL associado à renderização da Skybox. Isso inclui os shaders de vértice e fragmento.
+- `abcg::glDeleteBuffers(1, &m_skyVBO)`: Deleta o buffer de vértices (VBO) usado para armazenar as posições da Skybox.
+- `abcg::glDeleteVertexArrays(1, &m_skyVAO)`: Deleta o objeto de array de vértices (VAO) associado à Skybox.
+
+### Liberação do Programa Principal
+- `abcg::glDeleteProgram(m_program)`: Deleta o programa OpenGL associado à renderização principal. Isso inclui os shaders de vértice e fragmento.
+
+### Classe Model
+
+Somente as funções que sofreram alterações ou foram adicionadas para a atividade atual serão documentadas, as demais funções seguem a documentação da Atividade 02.
+
+#### Função Model::computeNormals()
+
+A função `Model::computeNormals()` é responsável por calcular as normais dos vértices do modelo com base nas normais das faces.
+
+##### Limpeza das Normais Anteriores
+- `for (auto &vertex : m_vertices)`: Itera sobre todos os vértices do modelo.
+  - `vertex.normal = glm::vec3(0.0f);`: Inicializa as normais dos vértices com vetores nulos.
+
+##### Cálculo das Normais das Faces
+- `for (auto const offset : iter::range(0UL, m_indices.size(), 3UL))`: Itera sobre os índices do modelo em incrementos de 3, representando triângulos.
+  - `auto &a{m_vertices.at(m_indices.at(offset + 0))};`: Obtém o primeiro vértice do triângulo.
+  - `auto &b{m_vertices.at(m_indices.at(offset + 1))};`: Obtém o segundo vértice do triângulo.
+  - `auto &c{m_vertices.at(m_indices.at(offset + 2))};`: Obtém o terceiro vértice do triângulo.
+  - `auto const edge1{b.position - a.position};`: Calcula o vetor da aresta 1.
+  - `auto const edge2{c.position - b.position};`: Calcula o vetor da aresta 2.
+  - `auto const normal{glm::cross(edge1, edge2)};`: Calcula a normal da face usando o produto vetorial das arestas.
+  - `a.normal += normal;`, `b.normal += normal;`, `c.normal += normal;`: Acumula as normais nas estruturas de vértices correspondentes.
+
+##### Normalização das Normais dos Vértices
+- `for (auto &vertex : m_vertices)`: Itera sobre todos os vértices do modelo.
+  - `vertex.normal = glm::normalize(vertex.normal);`: Normaliza as normais dos vértices.
+
+##### Atualização do Estado das Normais
+- `m_hasNormals = true;`: Atualiza a flag `m_hasNormals` para indicar que o modelo agora possui informações de normais.
+
+#### Função Model::loadCubeTexture(std::string const &path)
+
+A função `Model::loadCubeTexture` é responsável por carregar uma textura de cubemap no modelo.
+
+##### Funcionamento
+- `m_cubeTexture = abcg::loadOpenGLCubemap({.paths = {path + "posx.jpg", path + "negx.jpg", path + "posy.jpg", path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"}});`: Carrega uma nova textura de cubemap usando a função `abcg::loadOpenGLCubemap`. Os caminhos das seis imagens são construídos com base no caminho fornecido, e os identificadores da textura resultantes são armazenados em `m_cubeTexture`.
+
+##### Observações Adicionais
+- A função presume que as imagens do cubemap estão nomeadas seguindo a convenção de nomenclatura padrão, com sufixos indicando as direções dos eixos: "posx" (positivo x), "negx" (negativo x), "posy" (positivo y), "negy" (negativo y), "posz" (positivo z) e "negz" (negativo z).
+- A função é projetada para ser utilizada em conjunto com modelos que requerem um cubemap para efeitos visuais ou de iluminação específicos.
+
+#### Função Model::loadDiffuseTexture(std::string_view path)
+
+A função `Model::loadDiffuseTexture` é responsável por carregar uma textura difusa (textura de cor) para o modelo.
+
+##### Funcionamento
+- `m_diffuseTexture = abcg::loadOpenGLTexture({.path = path});`: Carrega uma nova textura difusa usando a função `abcg::loadOpenGLTexture`. O identificador da textura resultante é armazenado em `m_diffuseTexture`.
+
+#### Função Model::loadNormalTexture(std::string_view path)
+
+A função `Model::loadNormalTexture` é responsável por carregar uma textura normal para o modelo.
+
+##### Funcionamento
+- `m_normalTexture = abcg::loadOpenGLTexture({.path = path});`: Carrega uma nova textura normal usando a função `abcg::loadOpenGLTexture`. O identificador da textura resultante é armazenado em `m_normalTexture`.
+
+#### Função Model::loadObj(std::string_view path, bool standardize)
+
+A função `Model::loadObj` é responsável por carregar um modelo 3D no formato OBJ, incluindo suas informações de vértices, índices, normais, coordenadas de textura e materiais associados.
+
+##### Funcionamento
+- `auto const basePath{std::filesystem::path{path}.parent_path().string() + "/"};`: Calcula o caminho base para o arquivo do modelo, que será usado como o caminho para os arquivos de materiais (MTL).
+
+- `tinyobj::ObjReaderConfig readerConfig;`: Configuração do leitor de arquivo OBJ.
+  - `readerConfig.mtl_search_path = basePath;`: Define o caminho de pesquisa para arquivos de materiais.
+
+- `tinyobj::ObjReader reader;`: Objeto de leitura do arquivo OBJ.
+
+- `if (!reader.ParseFromFile(path.data(), readerConfig)) { ... }`: Analisa o arquivo OBJ especificado usando o leitor configurado. Lança uma exceção se a análise falhar.
+
+- `auto const &attrib{reader.GetAttrib()};`: Obtém os atributos do modelo (vértices, normais, coordenadas de textura).
+- `auto const &shapes{reader.GetShapes()};`: Obtém as formas do modelo.
+- `auto const &materials{reader.GetMaterials()};`: Obtém os materiais do modelo.
+
+- Limpa as listas de vértices e índices do modelo (`m_vertices` e `m_indices`).
+- Inicializa o indicador de presença de normais e coordenadas de textura como falso (`m_hasNormals` e `m_hasTexCoords`).
+
+- Um loop sobre as formas e índices é realizado para extrair as informações do modelo.
+
+- Um mapa `hash` é utilizado para armazenar vértices únicos e seus índices correspondentes.
+
+- As propriedades do primeiro material, se disponíveis, são usadas para definir propriedades do modelo, como coeficientes de reflexão e textura difusa.
+
+- Se o modelo deve ser padronizado (`standardize` é verdadeiro), a função `Model::standardize` é chamada para ajustar a escala e centralizar o modelo na origem.
+
+- Se o modelo não possui informações de normais, a função `Model::computeNormals` é chamada para calcular as normais dos vértices.
+
+- Finalmente, a função `Model::createBuffers` é chamada para criar os buffers de vértices e índices utilizados para renderizar o modelo.
+
+##### Observações Adicionais
+- Essa função utiliza a biblioteca TinyObjLoader para analisar arquivos OBJ e extrair informações sobre o modelo.
+- As informações de material do primeiro material são usadas para definir as propriedades do modelo, se disponíveis.
+- A função também suporta o carregamento de texturas difusas associadas aos materiais do modelo.
+
 ## Atividade 02:
 
 O projeto, desenvolvido utilizando a estrutura leve em C++ chamada ABCg, é um simulador espacial em 3D. Nele, uma nave espacial navega pelo espaço sideral evitando asteroides que se aproximam. A nave tem a capacidade de se mover para a direita, esquerda, acelerar, dar ré e ajustar seu zoom (Setas, WASD e scroll do mouse), oferecendo uma experiência interativa e imersiva. Desenvolvido para a disciplina de Computação Gráfica da UFABC, o projeto utiliza as capacidades do OpenGL para criar uma aplicação em WebAssembly.
