@@ -8,7 +8,7 @@ Projeto para a disciplina de Computação Gráfica utilizando a biblioteca ABCg.
 - Sonny Yassuaki R. Ganiko - 21050913
 
 ## Atividade 03:
-As funções descritas abaixo foram criadas para a Atividade 3 ou foram alteradas em relação a Atividade 2, as demais funções não listadas neste capítulo permaneceram inalteradas ou sofreram correções mínimas.
+As funções descritas abaixo foram criadas para à Atividade 3 ou foram alteradas em relação a Atividade 2, as demais funções não listadas neste capítulo permaneceram inalteradas ou sofreram correções mínimas.
 
 ### Classe Window
 

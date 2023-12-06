@@ -162,10 +162,7 @@ void Model::loadObj(std::string_view path, bool standardize) {
   tinyobj::ObjReaderConfig readerConfig;
   readerConfig.mtl_search_path = basePath; // Path to material files
 
-
   tinyobj::ObjReader reader;
-
-  
 
   if (!reader.ParseFromFile(path.data(), readerConfig)) {
     if (!reader.Error().empty()) {
