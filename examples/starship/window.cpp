@@ -105,16 +105,23 @@ void Window::onEvent(SDL_Event const &event) {
 void Window::onCreate() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
-  //abcg::glClearColor(0, 0, 0, 1);
+  abcg::glClearColor(0, 0, 0, 1);
   abcg::glEnable(GL_DEPTH_TEST);
+
+  //Shaders
+  m_program =
+      abcg::createOpenGLProgram({{.source = assetsPath + "normalmapping.vert",
+                                  .stage = abcg::ShaderStage::Vertex},
+                                  {.source = assetsPath + "normalmapping.frag",
+                                  .stage = abcg::ShaderStage::Fragment}});
 
   createSpaceship();
   createAsteroid();
 
-  // Camera at (0,0,0) and looking towards the negative z
-  glm::vec3 const eye{0.0f, 0.0f, 2.0f}; //0.0f, 0.035f, 0.01f
-  glm::vec3 const at{0.0f, 0.0f, 0.0f}; //{0.0f, -0.1f, -1.0f};
-  glm::vec3 const up{0.0f, 1.0f, 0.0f}; //{0.0f, 1.0f, 0.0f}
+  // Camera 
+  glm::vec3 const eye{0.0f, 0.0f, 2.0f};
+  glm::vec3 const at{0.0f, 0.0f, 0.0f};
+  glm::vec3 const up{0.0f, 1.0f, 0.0f};
   m_viewMatrix = glm::lookAt(eye, at, up);
 
   //rotação inicial da nave
@@ -196,8 +203,6 @@ void Window::onUpdate() {
       star.m_position.x = 20.0f; // Back to -100
     }
   }
-
-    
 }
 
 void Window::onPaint() {
@@ -212,25 +217,24 @@ void Window::onPaint() {
   auto const projMatrixLoc{abcg::glGetUniformLocation(m_program, "projMatrix")};
   auto const modelMatrixLoc{
       abcg::glGetUniformLocation(m_program, "modelMatrix")};
-  //auto const colorLoc{abcg::glGetUniformLocation(m_program, "color")};
   auto const normalMatrixLoc{
       abcg::glGetUniformLocation(m_program, "normalMatrix")};
   auto const lightDirLoc{
       abcg::glGetUniformLocation(m_program, "lightDirWorldSpace")};
   auto const shininessLoc{abcg::glGetUniformLocation(m_program, "shininess")};
-  auto const IaLoc{abcg::glGetUniformLocation(m_program, "Ia")};
-  auto const IdLoc{abcg::glGetUniformLocation(m_program, "Id")};
-  auto const IsLoc{abcg::glGetUniformLocation(m_program, "Is")};
-  auto const KaLoc{abcg::glGetUniformLocation(m_program, "Ka")};
-  auto const KdLoc{abcg::glGetUniformLocation(m_program, "Kd")};
-  auto const KsLoc{abcg::glGetUniformLocation(m_program, "Ks")};
   
   auto const diffuseTexLoc{abcg::glGetUniformLocation(m_program, "diffuseTex")};
   auto const mappingModeLoc{abcg::glGetUniformLocation(m_program, "mappingMode")};
   auto const normalTexLoc{abcg::glGetUniformLocation(m_program, "normalTex")};
   auto const cubeTexLoc{abcg::glGetUniformLocation(m_skyProgram, "cubeTex")};
  
-  //Iluminação
+  //Iluminação e Materiais
+  auto const IaLoc{abcg::glGetUniformLocation(m_program, "Ia")};
+  auto const IdLoc{abcg::glGetUniformLocation(m_program, "Id")};
+  auto const IsLoc{abcg::glGetUniformLocation(m_program, "Is")};
+  auto const KaLoc{abcg::glGetUniformLocation(m_program, "Ka")};
+  auto const KdLoc{abcg::glGetUniformLocation(m_program, "Kd")};
+  auto const KsLoc{abcg::glGetUniformLocation(m_program, "Ks")};
   auto const lightDirRotated{m_lightDir};
   abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
   abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
@@ -253,7 +257,7 @@ void Window::onPaint() {
   abcg::glUniform1i(mappingModeLoc, m_mappingMode);
 
 
-  //STARSHIP MODEL RENDER
+  //Render Spaceship
   glm::mat4 additionalModelMatrix{1.0f};
   additionalModelMatrix = glm::translate(additionalModelMatrix, m_additionalModelPosition);
   additionalModelMatrix = glm::scale(additionalModelMatrix, glm::vec3(1.0f, 1.0f, 1.0f)); //0.014
@@ -266,7 +270,7 @@ void Window::onPaint() {
   auto const normalMatrix{glm::inverseTranspose(modelViewMatrix)};
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
-  // Render each star
+  // Render cada Asteróide
   for (auto &star : m_stars) {
     // Compute model matrix of the current star
     glm::mat4 modelMatrix{1.0f};
@@ -291,7 +295,7 @@ void Window::onPaintUI() {
   abcg::OpenGLWindow::onPaintUI();
 
 
-  auto const widgetSize{ImVec2(222, 244)};
+  auto const widgetSize{ImVec2(222, 124)};
   ImGui::SetNextWindowPos(ImVec2(m_viewportSize.x - widgetSize.x - 5,
                                   m_viewportSize.y - widgetSize.y - 5));
   ImGui::SetNextWindowSize(widgetSize);
@@ -306,26 +310,8 @@ void Window::onPaintUI() {
   ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
   ImGui::PopItemWidth();
   
-  ImGui::Spacing();
-  
-  ImGui::Text("Material properties");
-
-  // Slider to control material properties
-  ImGui::PushItemWidth(widgetSize.x - 36);
-  ImGui::ColorEdit3("Ka", &m_Ka.x, ImGuiColorEditFlags_Float);
-  ImGui::ColorEdit3("Kd", &m_Kd.x, ImGuiColorEditFlags_Float);
-  ImGui::ColorEdit3("Ks", &m_Ks.x, ImGuiColorEditFlags_Float);
-  ImGui::PopItemWidth();
-  
-  // Slider to control the specular shininess
-  ImGui::PushItemWidth(widgetSize.x - 16);
-  ImGui::SliderFloat(" ", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
-  ImGui::PopItemWidth();
-  
   ImGui::End();
-
-
-
+  
   {
     auto const widgetSize{ImVec2(218, 62)};
     ImGui::SetNextWindowPos(ImVec2(m_viewportSize.x - widgetSize.x - 5, 5));
@@ -359,8 +345,8 @@ void Window::onPaintUI() {
 
         ImGui::SliderFloat("Vel.", &m_FOV, 55.0f, 160.0f, "%.0f Light Years");
       } else {
-        m_projMatrix = glm::ortho(-20.0f * aspect, 20.0f * aspect, -20.0f,
-                                  20.0f, 0.01f, 100.0f);
+        m_projMatrix = glm::ortho(-5.0f * aspect, 5.0f * aspect, -2.5f,
+                                  7.5f, 0.1f, 10.0f);
       }
       ImGui::PopItemWidth();
     }
@@ -369,29 +355,23 @@ void Window::onPaintUI() {
 }
 
 void Window::createAsteroid() {
-
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
-  m_model.loadDiffuseTexture(assetsPath + "maps/Rock-Texture-Surface.jpg");
+  //Textura do Skybox
   m_model.loadCubeTexture(assetsPath + "maps/");
-  m_model.loadObj(assetsPath + "asteroid.obj"); //Change Stars image loaded on screen
+
+  //Textura do Asteróide
+  m_model.loadDiffuseTexture(assetsPath + "maps/Rock-Texture-Surface.jpg");
+  m_model.loadObj(assetsPath + "asteroid.obj");
   m_model.setupVAO(m_program);
 }
 
 void Window::createSpaceship() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
-  m_program =
-      abcg::createOpenGLProgram({{.source = assetsPath + "normalmapping.vert",
-                                  .stage = abcg::ShaderStage::Vertex},
-                                  {.source = assetsPath + "normalmapping.frag",
-                                  .stage = abcg::ShaderStage::Fragment}});
-
   //STARSHIP MODEL
-  //m_additionalModel.loadDiffuseTexture(assetsPath + "maps/SciFi_Fighter_AK5-diffuse.jpg");
-  //m_additionalModel.loadNormalTexture(assetsPath + "maps/pattern_normal.png");
-  //m_additionalModel.loadCubeTexture(assetsPath + "maps/");
-  //m_model.loadCubeTexture(assetsPath + "maps/");
+  m_additionalModel.loadDiffuseTexture(assetsPath + "maps/SciFi_Fighter_AK5-diffuse.jpg");
+  m_additionalModel.loadNormalTexture(assetsPath + "maps/SciFi_Fighter_AK5-Normal_Map.png");
   m_additionalModel.loadObj(assetsPath + "SciFi_Fighter_AK5.obj");
   m_additionalModel.setupVAO(m_program);
   m_additionalModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -400,8 +380,6 @@ void Window::createSpaceship() {
   m_Kd = m_additionalModel.getKd();
   m_Ks = m_additionalModel.getKs();
   m_shininess = m_additionalModel.getShininess();
-
-
 }
 
 void Window::createSkybox() {
@@ -480,12 +458,8 @@ void Window::onResize(glm::ivec2 const &size) {
 void Window::onDestroy() {
   m_model.destroy();
   m_additionalModel.destroy();
-  destroySkybox();
-  abcg::glDeleteProgram(m_program);
-}
-
-void Window::destroySkybox() const {
   abcg::glDeleteProgram(m_skyProgram);
   abcg::glDeleteBuffers(1, &m_skyVBO);
   abcg::glDeleteVertexArrays(1, &m_skyVAO);
+  abcg::glDeleteProgram(m_program);
 }
